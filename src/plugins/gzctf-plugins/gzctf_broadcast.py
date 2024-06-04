@@ -100,12 +100,29 @@ async def drink_tea():
                     single_info = idInfoSet[1]
                     megTime=parseTime(single_info['time'])
                     msgType=TYPE_LIST[single_info['type']] if TYPE_LIST.get(single_info['type']) else single_info['type']
-                    msgContent=single_info['content']
+                    print(single_info)
+                    # {'id': 221, 'time': '2024-06-04T06:14:22.28996+00:00', 'type': 'Normal', 'values': ['Notice']}
+                    msgContent="无"
+                    match single_info['type']:
+                        case "Normal":
+                            msgContent=single_info['values'][0]
+                        case "FirstBlood":
+                            msgContent="恭喜 {0} 拿到了题目 {1} 的一血！".format(single_info['values'][0],single_info['values'][1])
+                        case "SecondBlood":
+                            msgContent="恭喜 {0} 拿到了题目 {1} 的二血！".format(single_info['values'][0],single_info['values'][1])
+                        case "ThirdBlood":
+                            msgContent="恭喜 {0} 拿到了题目 {1} 的三血！".format(single_info['values'][0],single_info['values'][1])
+                        case "NewHint":
+                            msgContent="题目 {0} 有了新的提示！".format(single_info['values'][0])
+                        case "NewChallenge":
+                            msgContent="新题目 {0} 上线了！".format(single_info['values'][0])
+
                     msg:str=BC_MESSAGE_TEMPLATE.lstrip(' ').rstrip(' ')
                     msg=msg.format(year=megTime[0],month=megTime[1],day=megTime[2],hour=megTime[3],minute=megTime[4],\
                                 secode=megTime[5],type=msgType,content=msgContent,game_title=gameInfo['title'],game_id=gameInfo['id'],\
                                 time=f"{megTime[3]}:{megTime[4]}:{megTime[5]}")
                     for key,ids in ENDPOINT.items():
                         for id in ids:
+                            print(msg)
                             await sendMessageTo(bot, key, id, msg)
                 NOWNOTICELIST[f"{gameInfo['id']}"]=tmpnoticelist
