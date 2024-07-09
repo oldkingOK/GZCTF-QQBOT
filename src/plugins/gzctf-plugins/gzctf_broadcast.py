@@ -22,9 +22,9 @@ if BASECONFIG.get("TYPE_LIST"):
 else:
     TYPE_LIST = {
         "Normal" : "【公告更新】",
-        "FirstBlood" : "-> 【一血】",
-        "SecondBlood" : "-> 【二血】",
-        "ThirdBlood" : "-> 【三血】",
+        "FirstBlood" : "【一血】",
+        "SecondBlood" : "【二血】",
+        "ThirdBlood" : "【三血】",
         "NewHint" : "【提示更新】",
         "NewChallenge" : "【上题目啦】"
     }
@@ -123,6 +123,6 @@ async def drink_tea():
                                 time=f"{megTime[3]}:{megTime[4]}:{megTime[5]}")
                     for key,ids in ENDPOINT.items():
                         for id in ids:
-                            print(msg)
+                            print(f"sendMessageTo({bot}, {key}, {id}, {msg})")
                             await sendMessageTo(bot, key, id, msg)
                 NOWNOTICELIST[f"{gameInfo['id']}"]=tmpnoticelist
