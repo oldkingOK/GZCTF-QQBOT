@@ -108,13 +108,15 @@ async def sendMessageTo(bot:Bot, type:str, id:str, message:str):
     """
     if type == "user_id" or type == "user":
         try:
-            await bot.call_api('send_msg',user_id=int(id,10),message=message)
-        except:
+            await bot.call_api('send_msg',user_id=id,message=message)
+        except Exception as e:
+            print(e)
             return False
     elif type == "group_id" or type == "group":
         try:
-            await bot.call_api('send_msg',group_id=int(id,10),message=message)
-        except:
+            await bot.call_api('send_msg',group_id=id,message=message)
+        except Exception as e:
+            print(e)
             return False
     return True
 
