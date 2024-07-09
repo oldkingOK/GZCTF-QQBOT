@@ -62,8 +62,9 @@
 pip install nb-cli
 pip install nonebot2
 pip install nonebot-adapter-cqhttp
-pip install nonebot2[fastapi]
+pip install pydantic==1.10.15
 nb plugin install nonebot_plugin_apscheduler
+nb driver install fastapi
 ```
 然后使用git拉取GZCTF-BOT项目到你指定的文件夹中
 
