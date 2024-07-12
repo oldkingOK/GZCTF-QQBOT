@@ -59,9 +59,11 @@
 
 首先安装相关依赖
 ```
-pip install nb-cli
-pip install nonebot2
-pip install nonebot-adapter-cqhttp
+python3 -m venv .venv
+source .venv/bin/activate
+pip install nb-cli==1.4.1
+pip install nonebot2==2.3.2
+pip install nonebot-adapter-cqhttp==2.0.0b1
 pip install pydantic==1.10.15
 nb plugin install nonebot_plugin_apscheduler
 nb driver install fastapi
