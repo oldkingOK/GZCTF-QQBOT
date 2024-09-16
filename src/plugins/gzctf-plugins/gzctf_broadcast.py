@@ -42,7 +42,8 @@ async def open_handle(bot,event):
             await bot.send(event,"播报已经开启")
         else:
             await bot.send(event,"播报本来就开启着呢")
-    except:
+    except Exception as e:
+        print(e)
         print("可能被封控了，无法发送群消息")
 
 # close 指令路由
@@ -56,7 +57,8 @@ async def close_handle(bot,event):
         else:
             SEND_ENABLED = False
             await bot.send(event,"播报已经关闭")
-    except:
+    except Exception as e:
+        print(e)
         print("可能被封控了，无法发送群消息")
 
 # 查看当前所播报的比赛信息
