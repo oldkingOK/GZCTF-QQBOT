@@ -3,6 +3,8 @@ from nonebot import require
 from nonebot.rule import Rule,to_me
 # from nonebot_plugin_apscheduler import scheduler
 he = require("nonebot_plugin_apscheduler").scheduler
+from datetime import datetime
+from dateutil import parser
 from .gzctf_tools import getNowNoticeList, parseTime, sendMessageTo,getGameMonitored, getNoticeById, getContestInfo
 from .gzctf_rules import checkBeginPoint
 from .config import Config
@@ -101,8 +103,12 @@ async def drink_tea():
                 for idInfoSet in tmpList:
                     single_info = idInfoSet[1]
                     megTime=parseTime(single_info['time'])
+                    megTimeFormatted = parser.isoparse(single_info['time'])
                     msgType=TYPE_LIST[single_info['type']] if TYPE_LIST.get(single_info['type']) else single_info['type']
                     print(single_info)
+                    if (datetime.now(megTimeFormatted.tzinfo) - megTimeFormatted).total_seconds() > 60:
+                        print("Longer than 60s, skip this message.")
+                        continue
                     # {'id': 221, 'time': '2024-06-04T06:14:22.28996+00:00', 'type': 'Normal', 'values': ['Notice']}
                     msgContent="无"
                     match single_info['type']:
