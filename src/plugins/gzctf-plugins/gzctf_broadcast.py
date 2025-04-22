@@ -4,8 +4,7 @@ from nonebot.rule import Rule,to_me
 # from nonebot_plugin_apscheduler import scheduler
 he = require("nonebot_plugin_apscheduler").scheduler
 from datetime import datetime
-from dateutil import parser
-from .gzctf_tools import getNowNoticeList, parseTime, sendMessageTo,getGameMonitored, getNoticeById, getContestInfo
+from .gzctf_tools import getNowNoticeList, parseTime, sendMessageTo,getGameMonitored, getNoticeById, getContestInfo, parse_time_flexibly
 from .gzctf_rules import checkBeginPoint
 from .config import Config
 
@@ -71,7 +70,7 @@ async def check_handle(bot,event):
     GAMEMONITORED=getGameMonitored()
     status = "开" if SEND_ENABLED else "关"
     msg=f"处于监听中的比赛有(状态：{status}):\n"
-    for gameInfo in GAMEMONITORED:
+    for gameInfo in GAMEMONITORED['data']:
         gameTimeStart = parseTime(gameInfo['start'])
         gameTimeEnd = parseTime(gameInfo['end'])
         msg+=f"\t赛事名称: {gameInfo['title']}\n\t\t开始时间: {gameTimeStart[1]}-{gameTimeStart[2]} {gameTimeStart[3]}:{gameTimeStart[4]}:{gameTimeStart[5]}\
@@ -93,17 +92,21 @@ async def drink_tea():
             NOWCONTESTINFO = tmpContestInfo
             GAMEMONITORED=getGameMonitored()
         # 循环获取多个监听比赛的信息并进行处理
-        for gameInfo in GAMEMONITORED:
+        for gameInfo in GAMEMONITORED['data']:
             if (tmpnoticelist:=getNoticeById(f"{gameInfo['id']}")) != NOWNOTICELIST[f"{gameInfo['id']}"]:
                 tmpList=[]
                 for single_info in tmpnoticelist:
                     if single_info not in NOWNOTICELIST[f"{gameInfo['id']}"]:
-                        tmpList.append([single_info['id'],single_info])
+                        try:
+                            tmpList.append([single_info['id'],single_info])
+                        except TypeError as e:
+                            print(e)
+                            print(tmpList)
                 tmpList.sort()
                 for idInfoSet in tmpList:
                     single_info = idInfoSet[1]
                     megTime=parseTime(single_info['time'])
-                    megTimeFormatted = parser.isoparse(single_info['time'])
+                    megTimeFormatted = parse_time_flexibly(single_info['time'])
                     msgType=TYPE_LIST[single_info['type']] if TYPE_LIST.get(single_info['type']) else single_info['type']
                     print(single_info)
                     if (datetime.now(megTimeFormatted.tzinfo) - megTimeFormatted).total_seconds() > 60:

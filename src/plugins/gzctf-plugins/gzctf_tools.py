@@ -1,7 +1,8 @@
 import requests
 import json
 import pytz
-from datetime import datetime
+from datetime import datetime, timezone
+from dateutil import parser
 from nonebot import get_driver
 from nonebot.adapters import Bot
 from .config import Config
@@ -39,18 +40,37 @@ def parseTime(strTime):
         *** 解析通过 gzctf 平台获取的时间串 ***
     """
     global UTC_TIMEZONE, UTC_PLUS_8_TIMEZONE
-    date=datetime.fromisoformat(strTime[:19])
-    parsed_date_utc = UTC_TIMEZONE.localize(date)
-    date=parsed_date_utc.astimezone(UTC_PLUS_8_TIMEZONE)
-    # date=datetime.now()
-    year=date.year
-    month = ('0'+str(date.month)) if date.month < 10 else str(date.month)
-    day = ('0'+str(date.day)) if date.day < 10 else str(date.day)
-    hour = ('0'+str(date.hour)) if date.hour < 10 else str(date.hour)
-    minute = ('0'+str(date.minute)) if date.minute < 10 else str(date.minute)
-    second = ('0'+str(date.second)) if date.second < 10 else str(date.second)
-    nowTime=(year,month,day,hour,minute,second)
+
+    # 如果传入的是整数或长整型（如 1741861800000）
+    if isinstance(strTime, (int, float)):
+        # 毫秒转秒
+        timestamp = strTime / 1000
+        date = datetime.fromtimestamp(timestamp, tz=UTC_TIMEZONE)
+    else:
+        # 字符串形式如 "2025-04-12T12:00:00"
+        date = datetime.fromisoformat(strTime[:19])
+        date = UTC_TIMEZONE.localize(date)
+
+    date = date.astimezone(UTC_PLUS_8_TIMEZONE)
+
+    year = date.year
+    month = f"{date.month:02d}"
+    day = f"{date.day:02d}"
+    hour = f"{date.hour:02d}"
+    minute = f"{date.minute:02d}"
+    second = f"{date.second:02d}"
+    nowTime = (year, month, day, hour, minute, second)
     return nowTime
+
+def parse_time_flexibly(time_input):
+    if isinstance(time_input, (int, float)):
+        # 毫秒转秒，然后加上 UTC 时区
+        return datetime.fromtimestamp(time_input / 1000, tz=timezone.utc)
+    elif isinstance(time_input, str):
+        # 解析 ISO 格式字符串
+        return parser.isoparse(time_input)
+    else:
+        raise ValueError("不支持的时间格式")
 
 def getLogin():
     """
@@ -138,11 +158,11 @@ def getGameMonitored():
         GAMEMONITORED = CONTESTINFOS
     return GAMEMONITORED
 
-def getNowNoticeList(gamemonitored: list):
+def getNowNoticeList(gamemonitored: dict):
     """
         *** 获取被监视比赛的notice ***
     """
     NOWNOTICEDICT={}
-    for gameInfo in gamemonitored:
+    for gameInfo in gamemonitored['data']:
         NOWNOTICEDICT[f"{gameInfo['id']}"]=getNoticeById(f"{gameInfo['id']}")
     return NOWNOTICEDICT
